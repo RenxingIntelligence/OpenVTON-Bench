@@ -1,0 +1,151 @@
+# OpenVTON-Bench Configuration File
+
+# ===== Data Path Configuration =====
+data:
+  # Test set JSONL file path
+  test_jsonl: "./data/test_samples.jsonl"
+
+  # Generated image directories (can configure multiple models)
+  generated_dirs:
+    # - name: "model_a"
+    #   path: "./generated_images/model_a"
+    #   description: "Model A"
+
+    - name: "model_b"
+      path: "./generated_images/model_b"
+      description: "Model B"
+
+    # - name: "model_c"
+    #   path: "./generated_images/model_c"
+    #   description: "Model C"
+
+  # Output results directory
+  output_dir: "./results"
+
+  # Base image directory (optional, for relative paths in test_jsonl)
+  # base_image_dir: "./data/images"
+
+# ===== Model Path Configuration =====
+models:
+  # DINOv3 model path (for feature extraction)
+  dinov3:
+    path: "./models/dinov3-vith16plus"
+    image_size: 1024
+
+  # SAM3 model path (for garment segmentation)
+  sam:
+    checkpoint: "./models/sam3/"
+
+    # SAM3 segmentation parameters
+    threshold: 0.5  # Detection confidence threshold (0.3-0.6, 0.5 recommended)
+    mask_threshold: 0.5  # Mask binarization threshold (0.5 recommended)
+    default_prompt: "clothing"  # Default prompt when cluster label not found
+
+    # Text prompt configuration
+    cluster_label_mapping: "./data/cluster_label_mapping.json"
+    visual_buckets: "./data/visual_buckets.json"
+
+  # Qwen VL API configuration (for VLM evaluation)
+  qwen_vl:
+    # API mode configuration
+    api_key: "${QWEN_VL_API_KEY}"  # Set via environment variable
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    model_name: "qwen-vl-plus"  # Options: qwen-vl-plus, qwen-vl-max
+    max_tokens: 2048  # Maximum token count (recommend 1024+ to avoid response truncation)
+    max_workers: 10  # Maximum concurrent API calls for VLM evaluation
+
+# ===== Evaluation Settings =====
+evaluation:
+  # Enabled evaluation types
+  enable_vlm: false       # VLM-based evaluation
+  enable_garment: false   # Garment-based evaluation
+  enable_all: false       # All-based evaluation
+  enable_pixel: true      # Pixel-based evaluation (pure pixel space comparison, no DINOv2)
+
+  # Pixel evaluation configuration
+  pixel:
+    enable_fid: true     # Enable FID calculation (requires InceptionV3)
+
+  # VLM evaluation dimensions (1-5 score)
+  vlm_dimensions:
+    - name: "background_consistency"
+      display_name: "Background Consistency"
+      description: "Consistency between generated and real image backgrounds"
+    - name: "person_consistency"
+      display_name: "Person Consistency"
+      description: "Preservation of person pose and facial features"
+    - name: "garment_texture"
+      display_name: "Garment Texture Restoration"
+      description: "Quality of garment texture detail restoration"
+    - name: "garment_shape"
+      display_name: "Garment Shape Fit"
+      description: "How well the garment shape fits the body"
+    - name: "overall_realism"
+      display_name: "Overall Realism"
+      description: "Overall realism and naturalness of the image"
+
+  # Garment/All evaluation metrics
+  metrics:
+    - "cosine_similarity"   # Cosine Similarity
+    - "mse"                 # Mean Squared Error
+    - "ssim"                # Structural Similarity Index
+    - "psnr"                # Peak Signal-to-Noise Ratio
+    - "lpips"               # Learned Perceptual Image Patch Similarity
+
+  # Image erosion scales (pixels) - for Garment evaluation
+  erosion_scales: [40, 80, 120]  # Small, medium, large scales
+
+# ===== GPU and Performance Configuration =====
+performance:
+  # GPU configuration
+  gpu_ids: "0,1,2,3"      # GPU IDs to use, comma-separated
+  batch_size: 32          # Batch size
+  num_workers: 16         # DataLoader worker count
+
+  # Cache settings
+  use_cache: true         # Enable feature caching
+  cache_dir: "./.cache"
+
+  # Parallel settings
+  max_parallel_vlm: 4     # Maximum parallel VLM evaluations
+
+# ===== Reporting and Visualization Configuration =====
+reporting:
+  # Generated report formats
+  formats:
+    - "json"              # JSON format detailed results
+    - "txt"               # Text summary
+    - "html"              # HTML interactive report
+
+  # Visualization charts
+  visualizations:
+    # - "vlm_radar"         # VLM score radar chart
+    # - "garment_heatmap"   # Garment metrics heatmap
+    # - "all_comparison"    # All-based comparison chart
+    # - "model_ranking"     # Model ranking chart
+    # - "metric_distribution" # Metrics distribution boxplot
+
+  # Chart style
+  plot_style: "seaborn"
+  dpi: 300
+  figsize: [12, 8]
+
+# ===== Logging Configuration =====
+logging:
+  level: "INFO"           # DEBUG, INFO, WARNING, ERROR
+  save_log: true
+  log_file: "./benchmark/evaluation.log"
+
+# ===== Miscellaneous Settings =====
+misc:
+  # Random seed (for reproducibility)
+  seed: 200
+
+  # Save intermediate results
+  save_intermediate: true
+
+  # Error handling
+  skip_on_error: true     # Skip sample on error instead of aborting
+
+  # Progress display
+  show_progress: true

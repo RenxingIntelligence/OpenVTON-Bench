@@ -1,0 +1,37 @@
+# OpenVTON-Bench Requirements
+# Python 3.12+
+
+# Core dependencies
+torch>=2.0.0
+torchvision>=0.15.0
+transformers>=4.30.0
+huggingface-hub>=0.16.0
+
+# Image processing
+pillow>=9.0.0
+opencv-python>=4.8.0
+scikit-image>=0.21.0
+
+# Metrics
+lpips>=0.1.4
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# Data processing
+numpy>=1.24.0
+pandas>=2.0.0
+pyyaml>=6.0
+
+# Logging and CLI
+loguru>=0.7.0
+tqdm>=4.65.0
+
+# API client (for VLM evaluation)
+openai>=1.0.0
+
+# Optional: Multi-GPU support
+# faiss-gpu>=1.7.0

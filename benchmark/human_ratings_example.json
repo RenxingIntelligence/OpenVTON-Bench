@@ -1,0 +1,29 @@
+[
+    {
+        "image_id": "sample_001.png",
+        "model": "nanobanana",
+        "overall_quality": 4.5,
+        "garment_fidelity": 4.2,
+        "realism": 4.3,
+        "background_consistency": 4.4,
+        "person_consistency": 4.1
+    },
+    {
+        "image_id": "sample_002.png",
+        "model": "nanobanana",
+        "overall_quality": 3.8,
+        "garment_fidelity": 3.9,
+        "realism": 3.7,
+        "background_consistency": 4.0,
+        "person_consistency": 3.6
+    },
+    {
+        "image_id": "sample_003.png",
+        "model": "nanobanana",
+        "overall_quality": 4.1,
+        "garment_fidelity": 4.0,
+        "realism": 4.2,
+        "background_consistency": 4.1,
+        "person_consistency": 4.0
+    }
+]
