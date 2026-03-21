@@ -1,246 +1,277 @@
-# OpenVTON-Bench
+<div align="center">
 
-A comprehensive benchmark for evaluating Virtual Try-On (VTON) models with multi-dimensional metrics.
+# 👕 OpenVTON-Bench
+**A Large-Scale High-Resolution Benchmark for Controllable Virtual Try-On Evaluation**
 
 <p align="center">
-  <a href="#installation">Installation</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#evaluation-metrics">Metrics</a> •
-  <a href="#citation">Citation</a>
+  <a href="https://arxiv.org/abs/2601.22725">
+    <img src="https://img.shields.io/badge/arXiv-2601.22725-b31b1b.svg?style=flat-square&logo=arxiv" alt="arXiv">
+  </a>
+  <a href="https://huggingface.co/datasets/RenxingIntelligence/OpenVTON">
+    <img src="https://img.shields.io/badge/Dataset-HuggingFace-orange?style=flat-square&logo=huggingface" alt="Dataset">
+  </a>
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python-3.12%2B-blue.svg?style=flat-square&logo=python&logoColor=white" alt="Python">
+  </a>
+  <a href="https://developer.nvidia.com/cuda-downloads">
+    <img src="https://img.shields.io/badge/CUDA-12.4%2B-green.svg?style=flat-square&logo=nvidia" alt="CUDA">
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License">
+  </a>
 </p>
 
-## Overview
+*A comprehensive multi-modal evaluation protocol using VLM-based scores and multi-scale representation metrics.*
 
-OpenVTON-Bench is a systematic evaluation framework for virtual try-on generation models. It provides four types of evaluation approaches:
+<p align="center">
+  <a href="#-overview">Overview</a> •
+  <a href="#-dataset">Dataset</a> •
+  <a href="#-evaluation-protocols">Evaluation</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-citation">Citation</a>
+</p>
+</div>
 
-| Evaluation Type | Description | Metrics |
-|-----------------|-------------|---------|
-| **VLM-based** | Multi-dimensional quality assessment using Vision-Language Models | Background Consistency, Person Consistency, Texture Fidelity, Shape Preservation, Overall Realism |
-| **Garment-based** | Fine-grained garment region evaluation with SAM3 segmentation | Cosine Similarity, SSIM, PSNR, LPIPS (multi-scale) |
-| **All-based** | Full image comparison using DINOv3 features | Cosine Similarity, SSIM, PSNR, LPIPS |
-| **Pixel-based** | Direct pixel-level comparison | MSE, SSIM, PSNR, LPIPS, FID |
+---
 
-## Installation
+## 🔍 Overview
 
-### Prerequisites
+**OpenVTON-Bench** is a **large-scale, high-resolution benchmark** designed for the **systematic evaluation of controllable virtual try-on (VTON) models**.
 
-- Python 3.12+
-- CUDA 12.4+
-- 4+ GPUs recommended for large-scale evaluation
+Unlike existing datasets and evaluation protocols that struggle with texture details and semantic consistency, OpenVTON-Bench provides:
+
+- 🖼️ **~100K Image Pairs**: Breathtaking resolutions up to **1536×1536** to evaluate fine-grained texture generation.
+- 🏷️ **Fine-Grained Taxonomy**: Semantically balanced across **20 garment categories**.
+- 📐 **Multi-Level Automated Evaluation**: Comprehensively covering:
+  - Pixel fidelity
+  - Garment consistency
+  - Semantic realism
+
+This benchmark enables **fair, reproducible, and scalable comparison** across modern diffusion-based and transformer-based try-on systems.
+
+---
+
+## 🧬 Data Construction Pipeline
+
+<div align="center">
+  <img src="demo/Data Construction Pipeline.png" alt="Data Construction Pipeline" width="90%">
+</div>
+<br>
+
+The dataset is constructed through a rigorous **three-stage pipeline** ensuring category diversity, visual quality, and semantic consistency:
+
+1. 🌐 **Web-Scale Crawling**: With strict resolution filtering to maintain commercial-grade quality.
+2. ✍️ **Hybrid Annotation**: Combining human verification with Vision-Language Model (VLM) dense captioning.
+3. ⚖️ **Semantic-Aware Balancing**: Utilizing **DINOv3** hierarchical clustering for uniform distribution.
+
+---
+
+## 📦 Dataset
+
+### 🔗 HuggingFace Access
+The full dataset is open-source and publicly available on HuggingFace:
+
+> [!IMPORTANT]
+> 👉 **[RenxingIntelligence/OpenVTON Dataset](https://huggingface.co/datasets/RenxingIntelligence/OpenVTON/)**
+
+### 📊 Statistics
+
+| Property | Value | Description |
+| :--- | :--- | :--- |
+| **Image Pairs** | `~100,000` | High-quality garment and person pairs |
+| **Resolution** | Up to `1536×1536` | Critical for fine-grained texture assessment |
+| **Categories** | `20` | Fine-grained garment taxonomy |
+| **Annotation** | Hybrid | VLM dense captioning + human verified |
+
+---
+
+## 👗 Garment Categories
+
+<div align="center">
+  <img src="demo/category_grid.png" alt="Category Grid" width="90%">
+  <p><em>Samples from the 20 garment categories (C0–C19) included in OpenVTON-Bench.</em></p>
+</div>
+
+---
+
+## 📊 Evaluation Protocols
+
+OpenVTON-Bench introduces a **hybrid evaluation paradigm** featuring four complementary protocols. This multi-view design captures **both perceptual and structural quality** of generated try-on results:
+
+| Type | Description | Key Metrics |
+| :--- | :--- | :--- |
+| 🧠 **VLM-based** | Semantic realism via Vision-Language Models (VLM-as-a-Judge) | Background, Identity, Texture, Shape, Overall |
+| ✂️ **Garment-based** | Region-level evaluation via [SAM3](https://segment-anything.com/) | SSIM, PSNR, LPIPS, Cosine |
+| 🖼️ **All-based** | Full-image feature comparison using [DINOv3](https://github.com/facebookresearch/dinov2) | SSIM, LPIPS, Cosine |
+| 👾 **Pixel-based** | Raw pixel structural comparison | MSE, PSNR, SSIM, LPIPS, FID |
+
+### 🧮 Evaluation Metrics Guide
+
+| Metric | Goal | Description |
+| :--- | :---: | :--- |
+| **SSIM** | **↑** Higher | Structural Similarity Index |
+| **PSNR** | **↑** Higher | Peak Signal-to-Noise Ratio |
+| **Cosine Sim** | **↑** Higher | Feature-level cosine similarity |
+| **LPIPS** | **↓** Lower | Learned Perceptual Image Patch Similarity |
+| **FID** | **↓** Lower | Fréchet Inception Distance |
+| **MSE** | **↓** Lower | Mean Squared Error |
+
+> [!NOTE]
+> **VLM evaluation** utilizes a **1–5 scoring scale** across five semantic dimensions (Background, Identity, Texture, Shape, and Overall realism).
+
+---
+
+## 🛠 Installation
+
+### Requirements
+
+- Python **3.12+**
+- CUDA **12.4+**
+- *Recommended: **4× GPUs** for large-scale evaluation*
 
 ### Setup Environment
 
-```bash
-# Clone the repository
-git clone https://github.com/RenxingIntelligence/OpenVTON-Bench.git
-cd OpenVTON-Bench
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/RenxingIntelligence/OpenVTON-Bench.git
+   cd OpenVTON-Bench
+   ```
 
-# Create conda environment
-conda env create -f env.yaml
-conda activate bench_new
+2. **Create and activate the environment:**
+   Using `conda` (Recommended):
+   ```bash
+   conda env create -f env.yaml
+   conda activate bench_new
+   ```
+   *Or using `pip`:*
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# Or install via pip
-pip install -r requirements.txt
+---
+
+## 🚀 Quick Start
+
+### 1. Download Required Models
+
+Before running the benchmark, prepare the necessary backbone weights for feature extraction and segmentation in the `models/` directory:
+
+```text
+models/
+ ├── dinov3-vith16plus/    # Feature extraction
+ └── sam3/                 # Garment segmentation
 ```
 
-### Download Models
+### 2. Configure Paths
 
-Download the required model checkpoints:
-
-```bash
-# DINOv3 model (for feature extraction)
-# Place in: ./models/dinov3-vith16plus/
-
-# SAM3 model (for garment segmentation)
-# Place in: ./models/sam3/
-```
-
-## Quick Start
-
-### 1. Prepare Configuration
-
-Copy and modify the configuration file:
-
+Copy the template configuration file:
 ```bash
 cp benchmark/config.yaml benchmark/config.local.yaml
 ```
 
-Edit `config.local.yaml` to set your paths:
-
+Update the configuration (`benchmark/config.local.yaml`) with your generated image directories and model paths:
 ```yaml
 data:
   test_jsonl: "./data/test_samples.jsonl"
   generated_dirs:
     - name: "your_model"
       path: "./generated_images/your_model"
-      description: "Your Model Description"
-  output_dir: "./results"
 
 models:
   dinov3:
     path: "./models/dinov3-vith16plus"
-  sam:
-    checkpoint: "./models/sam3/"
-  qwen_vl:
-    api_key: "${QWEN_VL_API_KEY}"  # Set via environment variable
 ```
 
-### 2. Set Environment Variables
+### 3. Run Benchmark
 
+Run the full benchmark suite:
 ```bash
-# For VLM evaluation (optional)
-export QWEN_VL_API_KEY="your-api-key"
-```
-
-### 3. Run Evaluation
-
-```bash
-# Run full evaluation
 bash run_benchmark.sh --config benchmark/config.local.yaml
+```
 
-# Run specific evaluation type
+**Or run specific evaluation types individually:**
+```bash
 bash run_benchmark.sh --eval-type pixel
 bash run_benchmark.sh --eval-type garment
 bash run_benchmark.sh --eval-type vlm
-
-# Evaluate specific models
-bash run_benchmark.sh --models "model_a model_b"
 ```
 
-Or use Python directly:
+> [!WARNING]
+> **Dataset Format Requirement:**
+> The generated images must maintain identical filenames to the source/target images as specified in the JSONL:
+> `{"source": "00001.jpg", "target": "00001.jpg"}`
 
-```bash
-python benchmark/run_benchmark.py \
-    --config benchmark/config.yaml \
-    --eval_type pixel garment \
-    --models your_model
-```
+---
 
-## Data Format
+## 📁 Output Structure
 
-### Test Data (JSONL)
+The benchmark automatically generates a rich suite of analytics, outputted to the `results/` directory:
 
-```json
-{"source": "garment_001.jpg", "target": "person_wearing_001.jpg"}
-{"source": "garment_002.jpg", "target": "person_wearing_002.jpg"}
-```
-
-### Generated Images
-
-Place your model's generated images in the configured directory. File names should match the source image names in the test JSONL.
-
-## Evaluation Metrics
-
-### VLM-based Evaluation (1-5 scale)
-
-| Metric | Description |
-|--------|-------------|
-| Background Consistency | Preservation of background elements |
-| Person Consistency | Identity and body structure preservation |
-| Texture Fidelity | Garment texture detail restoration |
-| Shape Preservation | Garment shape and style accuracy |
-| Overall Realism | Overall image naturalness |
-
-### Pixel/Feature-based Metrics
-
-| Metric | Range | Better |
-|--------|-------|--------|
-| SSIM | [0, 1] | Higher |
-| PSNR | [0, ∞) | Higher |
-| LPIPS | [0, ∞) | Lower |
-| FID | [0, ∞) | Lower |
-| Cosine Similarity | [-1, 1] | Higher |
-| MSE | [0, ∞) | Lower |
-
-## Output Structure
-
-```
+```text
 results/
-└── YYYYMMDD_HHMMSS_evaluation/
-    ├── summary.json              # Overall summary
-    ├── summary.txt               # Text report
-    ├── per_model/
-    │   └── model_name/
-    │       └── results.json      # Detailed per-model results
-    ├── visualizations/           # Generated charts
-    │   ├── vlm_radar.png
-    │   ├── vlm_heatmap.png
-    │   ├── garment_metrics.png
-    │   └── model_comparison.png
-    └── debug/                    # Debug visualizations (optional)
-        └── garment/
-            └── sample_000/
+ └── YYYYMMDD_HHMMSS/
+     ├── summary.json          # Aggregate metric scores
+     ├── per_model/            # Detailed model-specific data
+     └── visualizations/       # Radar plots, comparison charts, per-sample diagnostics
 ```
 
-## Correlation Analysis
+## 📈 Correlation Analysis
 
-Analyze the correlation between automated metrics and human ratings:
+To measure the agreement between our automated multi-modal metrics and human subjective evaluation:
 
 ```bash
 python benchmark/analyze_correlation.py \
-    --result_dir ./results/YYYYMMDD_HHMMSS_evaluation \
-    --human_ratings ./data/human_ratings.json \
-    --model your_model \
-    --output_dir ./correlation_analysis
+  --result_dir results/... \
+  --human_ratings data/human.json
 ```
 
-## Project Structure
+---
 
+## 🧱 Project Structure
+
+<details>
+<summary><b>Click to expand</b></summary>
+
+```text
+benchmark/
+ ├── metrics/                  # Implementation of all evaluation metrics
+ ├── utils/                    # Helper scripts and visualizers
+ ├── run_benchmark.py          # Main execution entrypoint
+ └── analyze_correlation.py    # Statistical correlation tools
 ```
-OpenVTON-Bench/
-├── benchmark/
-│   ├── run_benchmark.py          # Main evaluation script
-│   ├── analyze_correlation.py    # Correlation analysis tool
-│   ├── config.yaml               # Configuration template
-│   ├── metrics/
-│   │   ├── vlm_evaluator.py      # VLM-based evaluator
-│   │   ├── garment_evaluator.py  # Garment-based evaluator
-│   │   ├── all_evaluator.py      # All-based evaluator
-│   │   ├── pixel_evaluator.py    # Pixel-based evaluator
-│   │   └── metrics_utils.py      # Metric calculation utilities
-│   └── utils/
-│       ├── sam_segmenter.py      # SAM3 segmentation
-│       ├── image_processing.py   # Image utilities
-│       └── report_generator.py   # Report generation
-├── run_benchmark.sh              # Shell script entry point
-├── env.yaml                      # Conda environment
-└── README.md
-```
+</details>
 
-## Hardware Requirements
+---
 
-| Evaluation Type | GPU Memory | Recommended GPUs |
-|-----------------|------------|------------------|
-| Pixel-based | ~4GB | 1x GPU |
-| All-based | ~8GB | 1x GPU |
-| Garment-based | ~16GB | 2-4x GPUs |
-| VLM-based | API-based | N/A |
+## 🧾 Citation
 
-## Citation
-
-If you find this benchmark useful for your research, please cite our paper:
+If you find this benchmark useful in your research, please consider citing:
 
 ```bibtex
-@article{openvton-bench2024,
-  title={OpenVTON-Bench: A Comprehensive Benchmark for Virtual Try-On Evaluation},
-  author={Your Name and Co-authors},
-  journal={arXiv preprint arXiv:XXXX.XXXXX},
-  year={2024}
+@misc{li2026openvton,
+  title={OpenVTON-Bench: A Large-Scale High-Resolution Benchmark for Controllable Virtual Try-On Evaluation},
+  author={Jin Li and Tao Chen and Shuai Jiang and Weijie Wang and Jingwen Luo and Chenhui Wu},
+  year={2026},
+  eprint={2601.22725},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2601.22725}
 }
 ```
 
-**Paper**: [Coming Soon](#)
+---
 
-## License
+## 📜 License
 
-This project is released under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
 
-## Acknowledgments
+---
 
-- [DINOv2/v3](https://github.com/facebookresearch/dinov2) for visual feature extraction
-- [SAM](https://github.com/facebookresearch/segment-anything) for garment segmentation
-- [LPIPS](https://github.com/richzhang/PerceptualSimilarity) for perceptual similarity
+## 🙏 Acknowledgments
 
-## Contact
-
-For questions or issues, please open an issue on GitHub or contact [your-email@example.com](mailto:your-email@example.com).
+This benchmark builds upon several foundational open-source projects. We express our gratitude to the creators of:
+* **[DINO](https://github.com/facebookresearch/dinov2)** (Meta Research)
+* **[Segment Anything (SAM)](https://segment-anything.com/)** (Meta AI)
+* **[LPIPS](https://github.com/richzhang/PerceptualSimilarity)** (Richard Zhang)
+* **[HuggingFace Datasets](https://huggingface.co/)**

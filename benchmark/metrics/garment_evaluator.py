@@ -107,6 +107,8 @@ class GarmentEvaluator:
             # Use pre-loaded model (to avoid duplicate loading)
             logger.info("Using pre-loaded DINOv3 model (shared)")
             self.processor, self.model = preloaded_model
+            # Sync self.device with the actual device of the preloaded model
+            self.device = str(next(self.model.parameters()).device)
         else:
             # Normal model loading
             logger.info(f"Loading DINOv3 model from {dinov3_path}...")
@@ -123,7 +125,7 @@ class GarmentEvaluator:
         # Initialize SAM3 segmenter
         self.sam_segmenter = SAMSegmenter(
             checkpoint_path=sam_checkpoint,
-            device=device,
+            device=self.device,
             threshold=threshold,
             mask_threshold=mask_threshold,
             cluster_label_loader=cluster_label_loader,
@@ -131,7 +133,7 @@ class GarmentEvaluator:
         )
 
         # Initialize metrics calculator
-        self.metrics_calculator = MetricsCalculator(device=device)
+        self.metrics_calculator = MetricsCalculator(device=self.device)
 
         logger.success("Garment evaluator initialized!")
 

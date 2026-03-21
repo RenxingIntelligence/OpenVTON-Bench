@@ -365,14 +365,43 @@ Example format (you MUST follow this EXACTLY):
             # Remove markdown code block markers
             response = response.replace('```json', '').replace('```', '').strip()
 
-            # Try to extract JSON part
+            # Try to extract JSON part by finding matched braces
             start_idx = response.find('{')
-            end_idx = response.rfind('}') + 1
 
-            if start_idx == -1 or end_idx == 0:
+            if start_idx == -1:
                 logger.warning("No JSON found in response, using default scores")
                 logger.debug(f"Response text: {response[:200]}...")
                 return self._default_scores()
+
+            # Find the matching closing brace for the first opening brace
+            depth = 0
+            end_idx = -1
+            in_string = False
+            escape_next = False
+            for i in range(start_idx, len(response)):
+                ch = response[i]
+                if escape_next:
+                    escape_next = False
+                    continue
+                if ch == '\\' and in_string:
+                    escape_next = True
+                    continue
+                if ch == '"' and not escape_next:
+                    in_string = not in_string
+                    continue
+                if in_string:
+                    continue
+                if ch == '{':
+                    depth += 1
+                elif ch == '}':
+                    depth -= 1
+                    if depth == 0:
+                        end_idx = i + 1
+                        break
+
+            if end_idx == -1:
+                # Unmatched braces — fall back to rfind
+                end_idx = response.rfind('}') + 1
 
             json_str = response[start_idx:end_idx]
 
