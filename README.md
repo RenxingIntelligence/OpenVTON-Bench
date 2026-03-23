@@ -102,8 +102,8 @@ OpenVTON-Bench introduces a **hybrid evaluation paradigm** featuring four comple
 | Type | Description | Key Metrics |
 | :--- | :--- | :--- |
 | 🧠 **VLM-based** | Semantic realism via Vision-Language Models (VLM-as-a-Judge) | Background, Identity, Texture, Shape, Overall |
-| ✂️ **Garment-based** | Region-level evaluation via [SAM3](https://segment-anything.com/) | SSIM, PSNR, LPIPS, Cosine |
-| 🖼️ **All-based** | Full-image feature comparison using [DINOv3](https://github.com/facebookresearch/dinov2) | SSIM, LPIPS, Cosine |
+| ✂️ **Garment-based** | Region-level evaluation via [SAM3](https://github.com/facebookresearch/sam3) | SSIM, PSNR, LPIPS, Cosine |
+| 🖼️ **All-based** | Full-image feature comparison using [DINOv3](https://github.com/facebookresearch/dinov3) | SSIM, LPIPS, Cosine |
 | 👾 **Pixel-based** | Raw pixel structural comparison | MSE, PSNR, SSIM, LPIPS, FID |
 
 ### 🧮 Evaluation Metrics Guide
@@ -265,13 +265,3 @@ If you find this benchmark useful in your research, please consider citing:
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
-
----
-
-## 🙏 Acknowledgments
-
-This benchmark builds upon several foundational open-source projects. We express our gratitude to the creators of:
-* **[DINO](https://github.com/facebookresearch/dinov2)** (Meta Research)
-* **[Segment Anything (SAM)](https://segment-anything.com/)** (Meta AI)
-* **[LPIPS](https://github.com/richzhang/PerceptualSimilarity)** (Richard Zhang)
-* **[HuggingFace Datasets](https://huggingface.co/)**
