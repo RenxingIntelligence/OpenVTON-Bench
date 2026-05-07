@@ -249,14 +249,14 @@ benchmark/
 If you find this benchmark useful in your research, please consider citing:
 
 ```bibtex
-@misc{li2026openvton,
-  title={OpenVTON-Bench: A Large-Scale High-Resolution Benchmark for Controllable Virtual Try-On Evaluation},
-  author={Jin Li and Tao Chen and Shuai Jiang and Weijie Wang and Jingwen Luo and Chenhui Wu},
-  year={2026},
-  eprint={2601.22725},
-  archivePrefix={arXiv},
-  primaryClass={cs.CV},
-  url={https://arxiv.org/abs/2601.22725}
+@misc{li2026openvtonbenchlargescalehighresolutionbenchmark,
+      title={OpenVTON-Bench: A Large-Scale High-Resolution Benchmark for Controllable Virtual Try-On Evaluation}, 
+      author={Jin Li and Tao Chen and Shuai Jiang and Weijie Wang and Jingwen Luo and Chenhui Wu},
+      year={2026},
+      eprint={2601.22725},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2601.22725}, 
 }
 ```
 
