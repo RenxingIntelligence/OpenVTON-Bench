@@ -16,8 +16,8 @@
   <a href="https://developer.nvidia.com/cuda-downloads">
     <img src="https://img.shields.io/badge/CUDA-12.4%2B-green.svg?style=flat-square&logo=nvidia" alt="CUDA">
   </a>
-  <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="License">
+  <a href="https://opensource.org/license/mit">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square" alt="Code license">
   </a>
 </p>
 
@@ -26,6 +26,8 @@
 <p align="center">
   <a href="#-overview">Overview</a> •
   <a href="#-dataset">Dataset</a> •
+  <a href="#data-splits-and-sampling-clusters">Splits & Clusters</a> •
+  <a href="#baseline-configurations">Baselines</a> •
   <a href="#-evaluation-protocols">Evaluation</a> •
   <a href="#-installation">Installation</a> •
   <a href="#-quick-start">Quick Start</a> •
@@ -41,8 +43,8 @@
 
 Unlike existing datasets and evaluation protocols that struggle with texture details and semantic consistency, OpenVTON-Bench provides:
 
-- 🖼️ **~100K Image Pairs**: Breathtaking resolutions up to **1536×1536** to evaluate fine-grained texture generation.
-- 🏷️ **Fine-Grained Taxonomy**: Semantically balanced across **20 garment categories**.
+- 🖼️ **99,925 Image Pairs**: Resolutions up to **1536×1536** for evaluating fine-grained texture generation.
+- 🏷️ **Visual Cluster Sampling**: Approximately balanced sampling across **20 DINOv3 K-Means clusters**, with **14 caption-derived labels** provided separately as metadata.
 - 📐 **Multi-Level Automated Evaluation**: Comprehensively covering:
   - Pixel fidelity
   - Garment consistency
@@ -54,23 +56,18 @@ This benchmark enables **fair, reproducible, and scalable comparison** across mo
 
 ## 🧬 Data Construction Pipeline
 
-<div align="center">
-  <img src="demo/Data Construction Pipeline.png" alt="Data Construction Pipeline" width="90%">
-</div>
-<br>
+The dataset construction combines image collection, annotation, and visual sampling:
 
-The dataset is constructed through a rigorous **three-stage pipeline** ensuring category diversity, visual quality, and semantic consistency:
-
-1. 🌐 **Web-Scale Crawling**: With strict resolution filtering to maintain commercial-grade quality.
+1. 🌐 **Image Collection**: Integrating open-source VTON data and web images, followed by resolution and quality filtering.
 2. ✍️ **Hybrid Annotation**: Combining human verification with Vision-Language Model (VLM) dense captioning.
-3. ⚖️ **Semantic-Aware Balancing**: Utilizing **DINOv3** hierarchical clustering for uniform distribution.
+3. ⚖️ **Cluster-Stratified Sampling**: Applying **K-Means (K=20)** to **DINOv3 garment embeddings**, then sampling approximately evenly across the visual clusters, subject to source availability.
 
 ---
 
 ## 📦 Dataset
 
 ### 🔗 HuggingFace Access
-The full dataset is open-source and publicly available on HuggingFace:
+The full dataset is publicly available on Hugging Face under **CC BY-NC 4.0**:
 
 > [!IMPORTANT]
 > 👉 **[RenxingIntelligence/OpenVTON Dataset](https://huggingface.co/datasets/RenxingIntelligence/OpenVTON/)**
@@ -79,19 +76,166 @@ The full dataset is open-source and publicly available on HuggingFace:
 
 | Property | Value | Description |
 | :--- | :--- | :--- |
-| **Image Pairs** | `~100,000` | High-quality garment and person pairs |
+| **Image Pairs** | `99,925` | Garment and person pairs |
+| **Train / Validation / Test** | `89,927 / 4,989 / 5,009` | Released split sizes |
 | **Resolution** | Up to `1536×1536` | Critical for fine-grained texture assessment |
-| **Categories** | `20` | Fine-grained garment taxonomy |
+| **Visual Sampling Clusters** | `20` | K-Means over DINOv3 garment embeddings |
+| **Caption-Derived Labels** | `14` | Keyword-matched metadata, distinct from sampling clusters |
 | **Annotation** | Hybrid | VLM dense captioning + human verified |
 
 ---
 
-## 👗 Garment Categories
+## Data splits and sampling clusters
 
-<div align="center">
-  <img src="demo/category_grid.png" alt="Category Grid" width="90%">
-  <p><em>Samples from the 20 garment categories (C0–C19) included in OpenVTON-Bench.</em></p>
-</div>
+OpenVTON-Bench contains 99,925 image pairs, split into 89,927 training, 4,989 validation, and 5,009 test pairs. Final sampling uses 20 visual clusters (C0-C19) obtained by applying K-Means to DINOv3 garment embeddings.
+
+The `category` metadata field instead contains 14 coarse labels extracted by deterministic keyword matching over Gemini captions, with first-match precedence and the merges `tshirt -> top`, `knitwear -> sweater`, and `suit -> jacket`. These labels describe caption content; they are not a manually verified taxonomy and do not define the sampling strata. One label can span several visual clusters.
+
+Nineteen clusters contain 5,012-5,088 pairs each. C13 contains all 3,340 available pairs from its source cluster. Sampling is approximately balanced across visual clusters, subject to source availability. The coefficient of variation is 7.612% across all 20 clusters and 0.331% across the other 19 clusters. Counts below describe the complete dataset rather than a dataset-viewer preview.
+
+<details>
+<summary>Complete label-by-cluster counts (14 labels × 20 clusters)</summary>
+
+The cross-tabulation is split into two panels for readability. `Total` in the second panel is the sum over all 20 clusters.
+
+| Label | C0 | C1 | C2 | C3 | C4 | C5 | C6 | C7 | C8 | C9 |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| blazer | 17 | 1 | 5 | 82 | 1271 | 28 | 8 | 8 | 4 | 3 |
+| cardigan | 15 | 0 | 24 | 13 | 18 | 3 | 159 | 2 | 13 | 16 |
+| coat | 0 | 0 | 24 | 111 | 1115 | 0 | 118 | 1 | 2 | 10 |
+| dress | 97 | 0 | 130 | 33 | 104 | 62 | 29 | 4 | 3065 | 2832 |
+| hoodie | 10 | 1 | 400 | 903 | 2 | 14 | 655 | 3 | 0 | 0 |
+| jacket | 101 | 3 | 134 | 412 | 1981 | 84 | 3575 | 25 | 27 | 12 |
+| jeans | 563 | 234 | 36 | 29 | 21 | 1140 | 23 | 1008 | 70 | 58 |
+| pants | 3923 | 29 | 33 | 18 | 3 | 3480 | 6 | 30 | 38 | 42 |
+| shirt | 81 | 23 | 1755 | 2898 | 125 | 25 | 109 | 22 | 46 | 59 |
+| shorts | 60 | 4761 | 15 | 8 | 3 | 131 | 7 | 3691 | 40 | 16 |
+| skirt | 88 | 30 | 35 | 0 | 4 | 4 | 10 | 200 | 671 | 889 |
+| sweater | 63 | 3 | 1163 | 450 | 25 | 97 | 56 | 6 | 34 | 15 |
+| top | 52 | 2 | 1285 | 105 | 104 | 16 | 52 | 5 | 1065 | 1132 |
+| vest | 17 | 0 | 49 | 26 | 311 | 4 | 280 | 7 | 13 | 4 |
+
+| Label | C10 | C11 | C12 | C13 | C14 | C15 | C16 | C17 | C18 | C19 | Total |
+|:---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| blazer | 4 | 3 | 6 | 1 | 1904 | 13 | 5 | 16 | 75 | 0 | 3454 |
+| cardigan | 3858 | 9 | 39 | 334 | 33 | 18 | 50 | 94 | 8 | 7 | 4713 |
+| coat | 8 | 9 | 40 | 37 | 2105 | 5 | 14 | 3 | 3 | 753 | 4358 |
+| dress | 142 | 364 | 144 | 25 | 190 | 257 | 632 | 2680 | 57 | 2 | 10849 |
+| hoodie | 6 | 3 | 1084 | 584 | 1 | 4 | 161 | 4 | 4 | 77 | 3916 |
+| jacket | 168 | 157 | 333 | 1818 | 508 | 55 | 35 | 13 | 131 | 2823 | 12395 |
+| jeans | 21 | 53 | 83 | 27 | 4 | 813 | 91 | 71 | 351 | 1 | 4697 |
+| pants | 13 | 21 | 47 | 12 | 8 | 43 | 49 | 57 | 4142 | 3 | 11997 |
+| shirt | 220 | 3556 | 1978 | 80 | 28 | 65 | 555 | 125 | 55 | 73 | 11878 |
+| shorts | 0 | 14 | 86 | 1 | 1 | 40 | 18 | 15 | 52 | 0 | 8959 |
+| skirt | 32 | 22 | 75 | 13 | 34 | 3674 | 110 | 481 | 49 | 7 | 6428 |
+| sweater | 92 | 6 | 609 | 58 | 27 | 43 | 1993 | 59 | 71 | 223 | 5093 |
+| top | 418 | 869 | 461 | 121 | 125 | 36 | 1347 | 1455 | 66 | 8 | 8724 |
+| vest | 105 | 1 | 103 | 229 | 119 | 21 | 28 | 14 | 23 | 1110 | 2464 |
+
+For example, `pants` spans C18 (4,142), C0 (3,923), and C5 (3,480), while `shorts` spans C1 (4,761) and C7 (3,691). The complete label frequencies are 12.01% for `pants` and 8.97% for `shorts`. Approximately balanced sampling clusters do not imply uniform frequencies for the caption-derived labels.
+
+</details>
+
+<details>
+<summary>Cluster counts before sampling and in each released split</summary>
+
+`Source cluster` is the number of items in the saved clustering pool assigned to that cluster before final sampling. It is distinct from the earlier raw collection and resolution-filtered candidate pool. `Total` is the number of released pairs in the cluster.
+
+| Cluster | Source cluster | Train | Validation | Test | Total |
+|:---|---:|---:|---:|---:|---:|
+| C0 | 5625 | 4578 | 254 | 255 | 5087 |
+| C1 | 6972 | 4578 | 254 | 255 | 5087 |
+| C2 | 17824 | 4579 | 254 | 255 | 5088 |
+| C3 | 21346 | 4579 | 254 | 255 | 5088 |
+| C4 | 12334 | 4578 | 254 | 255 | 5087 |
+| C5 | 13568 | 4579 | 254 | 255 | 5088 |
+| C6 | 6735 | 4578 | 254 | 255 | 5087 |
+| C7 | 5012 | 4510 | 250 | 252 | 5012 |
+| C8 | 12641 | 4579 | 254 | 255 | 5088 |
+| C9 | 15741 | 4579 | 254 | 255 | 5088 |
+| C10 | 8493 | 4578 | 254 | 255 | 5087 |
+| C11 | 9182 | 4578 | 254 | 255 | 5087 |
+| C12 | 13222 | 4579 | 254 | 255 | 5088 |
+| C13 | 3340 | 3006 | 167 | 167 | 3340 |
+| C14 | 5250 | 4578 | 254 | 255 | 5087 |
+| C15 | 7986 | 4578 | 254 | 255 | 5087 |
+| C16 | 14037 | 4579 | 254 | 255 | 5088 |
+| C17 | 8707 | 4578 | 254 | 255 | 5087 |
+| C18 | 6611 | 4578 | 254 | 255 | 5087 |
+| C19 | 5374 | 4578 | 254 | 255 | 5087 |
+
+The released split totals are **89,927 / 4,989 / 5,009**, summing to **99,925** pairs.
+
+</details>
+
+### Garment taxonomy and coverage across datasets
+
+The datasets below organize their data differently. Explicit garment labels, inherited attributes, and visual sampling clusters should be distinguished when comparing coverage.
+
+| Dataset | Published garment taxonomy or coverage |
+|:---|:---|
+| VITON / VITON-HD | Tops/upper-body only; no released fine garment taxonomy |
+| DressCode | Upper-body: tops, T-shirts, shirts, sweatshirts, sweaters; lower-body: skirts, trousers, shorts, leggings; dresses |
+| SHHQ | Unpaired full-human data; upper/lower texture and length attributes rather than paired VTON labels |
+| StreetTryOn | Unpaired; inherits DeepFashion2's 13 garment types |
+| LH-400K / WVTON | Unpaired image-text training set / 440 VTON test pairs; no named garment taxonomy published |
+| VTBench | Evaluator subsets; cross-category set uses top, lower, dresses, skirts |
+| VTONQA | T-shirt, shirt, sweater, shorts, trousers, maxiskirt, skirt, dress |
+| OpenVTON-Bench | 14 caption-derived coarse labels and 20 DINOv3 visual sampling clusters |
+
+Dataset sources are cited in the paper's dataset comparison and bibliography. The OpenVTON-Bench labels and cluster counts above refer to the complete released manifest.
+
+## Baseline configurations
+
+The following settings describe the experiments reported in the paper. Public-checkpoint baselines use official released weights. `PC` means a parameter is provider-controlled or unexposed. `No fixed seed` means a fixed seed was not supplied.
+
+<details>
+<summary>Model identifiers, modes, and image settings</summary>
+
+| Method | Checkpoint or mode | Image setting |
+|:---|:---|:---|
+| [OOTD](https://github.com/levihsu/OOTDiffusion) | Official OOTD-DC `checkpoint-36000` | 768×1,024 |
+| [EasyControl](https://github.com/Xiaojiu-z/EasyControl) | FLUX.1-dev + official subject/inpainting weights; BF16 | 1,024²; condition 512 |
+| [UNO](https://github.com/bytedance/UNO) | FLUX.1-dev + official UNO LoRA (rank 512) | 768×1,024; two references, long side 320 |
+| [FLUX.1-Kontext-dev](https://huggingface.co/black-forest-labs/FLUX.1-Kontext-dev) | Official weights; image-editing mode; BF16 | Garment and masked-person conditioning |
+| [FLUX.2-dev](https://huggingface.co/black-forest-labs/FLUX.2-dev) | Official weights; native multi-reference editing; BF16 | Two 1,024² references |
+| NanobananaPro | Fixed-output evaluation snapshot; backend revision unexposed | 1,024² padded two-image input |
+| Qwen-Editor | `qwen-image-edit-plus`; `n=1`; `prompt_extend=true`; no watermark | 1,024² input/output |
+| HuiWa / YingHui | Fixed-output evaluation snapshots | Two-image input protocol |
+| [DCI-VTON](https://github.com/bcmi/DCI-VTON-Virtual-Try-On) | Official `viton512_v2.ckpt` / `viton512_v2.yaml`; PLMS; eta 0; `n_samples=1` | 512² |
+| [PromptDresser](https://github.com/rlawjdghek/PromptDresser) | Official VITON-HD UNet; FP16; intermediate-cloth-mask start ratio 0.5 | 1,024×768 |
+| [StableVITON](https://github.com/rlawjdghek/StableVITON) | Official `VITONHD_PBE_pose.ckpt`; PLMS; eta 0 | 512×384 |
+
+</details>
+
+<details>
+<summary>Sampling steps, guidance, and seeds</summary>
+
+| Method | Steps | Guidance | Seed |
+|:---|---:|:---|:---|
+| OOTD | 20 | 2.0 | 200 |
+| EasyControl | 25 | 3.5 | 42 |
+| UNO | 25 | 4.0 | 3407 |
+| FLUX.1-Kontext-dev | 30 | 2.5 | No fixed seed |
+| FLUX.2-dev | 50 | 4.0 | No fixed seed |
+| NanobananaPro | PC | PC | PC |
+| Qwen-Editor | PC | PC | PC |
+| HuiWa / YingHui | PC | PC | PC |
+| DCI-VTON | 100 | 1.0 | 23 |
+| PromptDresser | 30 | Base 2.0; image 4.5; text 7.5 | No fixed seed |
+| StableVITON | 50 | Effective scale 1.0 | No fixed seed |
+
+PromptDresser uses separate base, image, and text guidance scales.
+
+</details>
+
+### Evaluation preprocessing
+
+Before computing the main metrics, source, ground-truth, and generated images undergo identical aspect-ratio-preserving LANCZOS resizing and centered white padding to a common 1,024² canvas. This evaluation preprocessing is separate from the models' native image settings above.
+
+The separate CIEDE2000 color diagnostic resizes images to 256² and uses the same valid sample IDs across methods. Target garment masks are eroded by five pixels, and the non-edited region excludes a five-pixel dilation of the garment mask. The paper's color consistency appendix provides the complete protocol and results.
+
+The two-image inference wrappers used a fixed try-on prompt, up to three attempts with a 2-second interval, exact-filename resume, explicit failure logs, and no failure imputation. For API-based systems, the reported results refer to fixed generated outputs. The evaluation code revision used for the reported results is [`dd3d4a7`](https://github.com/RenxingIntelligence/OpenVTON-Bench/tree/dd3d4a706ebdf455f50eb3559dcda0becd1de6af).
 
 ---
 
@@ -264,4 +408,6 @@ If you find this benchmark useful in your research, please consider citing:
 
 ## 📜 License
 
-This project is licensed under the [MIT License](LICENSE).
+The code is licensed under the [MIT License](https://opensource.org/license/mit).
+
+The [OpenVTON dataset](https://huggingface.co/datasets/RenxingIntelligence/OpenVTON) is released under [Creative Commons Attribution–NonCommercial 4.0 International (CC BY-NC 4.0)](https://creativecommons.org/licenses/by-nc/4.0/). Original asset terms and third-party rights continue to apply.
