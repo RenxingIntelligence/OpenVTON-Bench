@@ -3,7 +3,12 @@
 # 👕 OpenVTON-Bench
 **A Large-Scale High-Resolution Benchmark for Controllable Virtual Try-On Evaluation**
 
+🎉 **Accepted as a Poster at NeurIPS 2026, Evaluations and Datasets Track.**
+
 <p align="center">
+  <a href="https://openreview.net/forum?id=hkbyKxmccF">
+    <img src="https://img.shields.io/badge/NeurIPS%202026-ED%20Track%20%C2%B7%20Poster-6844A3?style=flat-square" alt="NeurIPS 2026 ED Track Poster">
+  </a>
   <a href="https://arxiv.org/abs/2601.22725">
     <img src="https://img.shields.io/badge/arXiv-2601.22725-b31b1b.svg?style=flat-square&logo=arxiv" alt="arXiv">
   </a>
